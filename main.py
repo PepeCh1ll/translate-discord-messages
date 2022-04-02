@@ -3,6 +3,7 @@ from googletrans import Translator
 import json
 import time
 import logging
+import traceback
 
 logger = logging.getLogger('Logs')
 logger.setLevel(logging.INFO)
@@ -59,7 +60,8 @@ try:
 			time.sleep(0.3)
 
 except Exception as e:
+	print(traceback.format_exc())
 	input('Произошла ошибка, просмотрите файл logs.txt или обратитесь за помощью к сотруднику\nНажмите Enter для выхода')
-	logger.error('Произошла ошибка: ' + str(e))
+	logger.error('Произошла ошибка: ' + traceback.format_exc())
 finally:
 	logger.info('Завершение программы')
