@@ -25,19 +25,8 @@ t = Translator()
 
 print('\nДля выхода из программы просто закройте её')
 
-#try:
-with requests.Session() as s:
-	r = s.get(f'https://discord.com/api/v9/channels/{chat_id}/messages?limit=3', headers=header)
-	result = json.loads(r.text)
-	for i in result:
-		if i['author']['id'] == author_id:
-			message = i['content']
-			msg_id = i['id']
-			break
-	message_id = msg_id
-
-	logger.info('Старт программы')
-	while True:
+try:
+	with requests.Session() as s:
 		r = s.get(f'https://discord.com/api/v9/channels/{chat_id}/messages?limit=3', headers=header)
 		result = json.loads(r.text)
 		for i in result:
@@ -45,22 +34,32 @@ with requests.Session() as s:
 				message = i['content']
 				msg_id = i['id']
 				break
-		if msg_id == message_id:
-			continue
-		else:
-			message_id = msg_id
+		message_id = msg_id
 
-		logger.info('Принято сообщение: ' + message)
-		message = t.translate(message, dest=lang).text
-		payload = {'content': message.capitalize()}
-		r = s.patch(f'https://discord.com/api/v9/channels/{chat_id}/messages/{message_id}', headers=header, json=payload)
-		logger.info('Сообщение переведено: ' + message)
+		logger.info('Старт программы')
+		while True:
+			r = s.get(f'https://discord.com/api/v9/channels/{chat_id}/messages?limit=3', headers=header)
+			result = json.loads(r.text)
+			for i in result:
+				if i['author']['id'] == author_id:
+					message = i['content']
+					msg_id = i['id']
+					break
+			if msg_id == message_id:
+				continue
+			else:
+				message_id = msg_id
 
-		time.sleep(0.3)
+			logger.info('Принято сообщение: ' + message)
+			message = t.translate(message, dest=lang).text
+			payload = {'content': message.capitalize()}
+			r = s.patch(f'https://discord.com/api/v9/channels/{chat_id}/messages/{message_id}', headers=header, json=payload)
+			logger.info('Сообщение переведено: ' + message)
 
-#except Exception as e:
-	#print(e)
-	# input('Произошла ошибка, просмотрите файл logs.txt или обратитесь за помощью к сотруднику\nНажмите Enter для выхода')
-	# logger.error('Произошла ошибка: ' + str(e))
-#finally:
-	#logger.info('Завершение программы')
+			time.sleep(0.3)
+
+except Exception as e:
+	input('Произошла ошибка, просмотрите файл logs.txt или обратитесь за помощью к сотруднику\nНажмите Enter для выхода')
+	logger.error('Произошла ошибка: ' + str(e))
+finally:
+	logger.info('Завершение программы')
